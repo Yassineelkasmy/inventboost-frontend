@@ -5,11 +5,20 @@ import { useForm } from "react-hook-form"
 import { cn } from "../../lib/utils"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
+import { useAppSelector } from "../../store"
+import { userSelectors } from "../../user/userSlice"
+import { useAuth } from "../../hooks/useAuth"
+import { useEffect } from "react"
+import { signOut } from "firebase/auth"
+import { auth } from "../../firebase"
 
 export function AccountForm({
     className,
     ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+
+
+    const { user } = useAuth()
 
     const formSchema = z.object({
         email: z.string().email(),
@@ -24,6 +33,10 @@ export function AccountForm({
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
     })
+
+    useEffect(() => {
+        form.setValue('email', user?.email ?? "")
+    }, [user?.email])
 
     const onSubmit = (values: z.infer<typeof formSchema>) => {
         alert(values)
@@ -78,6 +91,7 @@ export function AccountForm({
                     <FormField
                         control={form.control}
                         name="email"
+                        disabled={Boolean(user?.email)}
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
@@ -89,7 +103,8 @@ export function AccountForm({
                             </FormItem>
                         )}
                     />
-                    <FormField
+
+                    {user === undefined && <FormField
                         control={form.control}
                         name="password"
                         render={({ field }) => (
@@ -102,7 +117,7 @@ export function AccountForm({
                                 <FormMessage />
                             </FormItem>
                         )}
-                    />
+                    />}
 
                     <FormField
                         control={form.control}
@@ -134,9 +149,18 @@ export function AccountForm({
                         )}
                     />
 
-                    <Button type="submit" className="w-full">
-                        Sign Up
-                    </Button>
+                    <div className="flex flex-row gap-2">
+                        <Button variant={'secondary'} className="flex-1" onClick={async (e) => {
+                            e.preventDefault()
+                            signOut(auth)
+
+                        }}>
+                            Cancell
+                        </Button>
+                        <Button type="submit" className="flex-1">
+                            Sign Up
+                        </Button>
+                    </div>
                 </div>
 
             </form>
