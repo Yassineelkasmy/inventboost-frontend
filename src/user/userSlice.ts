@@ -1,4 +1,5 @@
-import { type PayloadAction, createAction, createSelector, createSlice } from '@reduxjs/toolkit'
+import { type PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit'
+import { AppRootState } from '../store'
 export interface UserState {
     id?: string
     extAuthId?: string
@@ -24,4 +25,14 @@ export const userSlice = createSlice({
     }
 })
 
-// export const userSelector = (state: PlayerRootState): UserState => state.user
+export const userSelector = (state: AppRootState): UserState => state.user
+
+export const userSelectors = {
+    id: createSelector(userSelector, (state) => state.id),
+    extAuthId: createSelector(userSelector, (state) => state.extAuthId),
+    email: createSelector(userSelector, (state) => state.email),
+    firstName: createSelector(userSelector, (state) => state.firstName),
+    lastName: createSelector(userSelector, (state) => state.lastName),
+}
+
+export default userSlice.reducer
