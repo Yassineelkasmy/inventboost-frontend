@@ -1,13 +1,12 @@
 import { GalleryVerticalEnd } from "lucide-react"
 
 import { cn } from "../../lib/utils"
-import { Label } from "./label"
-import { Button } from "./button"
-import { Input } from "./input"
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 
 
 
@@ -25,15 +24,18 @@ export function LoginForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "",
-            password: "",
         },
     })
+
+    const onSubmit = (values: z.infer<typeof formSchema>) => {
+
+    }
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Form {...form}>
 
-                <form className="flex flex-col gap-6">
+                <form className="flex flex-col gap-6" onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="flex flex-col items-center gap-2">
                         <a
                             href="#"
@@ -59,15 +61,16 @@ export function LoginForm({
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="email@example.com" {...field} />
+                                        <Input placeholder="Email Address" {...field} />
                                     </FormControl>
 
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
                         <Button type="submit" className="w-full">
-                            Login
+                            Continue
                         </Button>
                     </div>
                     <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
@@ -94,12 +97,6 @@ export function LoginForm({
                             </svg>
                             Continue with Google
                         </Button>
-                    </div>
-                    <div className="text-center text-sm">
-                        Don&apos;t have an account?{" "}
-                        <a href="#" className="underline underline-offset-4">
-                            Sign up
-                        </a>
                     </div>
                 </form>
 
