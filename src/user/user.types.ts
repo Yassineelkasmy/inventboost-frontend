@@ -11,3 +11,8 @@ export interface User {
     benefitCard: string | null;
     providerId: string | null;
 }
+
+export interface Provider {
+    id: string
+    name: string
+}

@@ -3,21 +3,22 @@ import { getIdToken, onAuthStateChanged, User } from "firebase/auth";
 import { auth } from '../firebase';
 import { useDispatch } from "react-redux";
 import { userActions } from "../user/userSlice";
+import { useUserProfile } from "../api/userApi";
 
 export const useAuth = () => {
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
     const dispatch = useDispatch()
+    const { data: userProfile } = useUserProfile()
 
 
     useEffect(() => {
-        if (user) {
+        if (user && userProfile) {
             dispatch(userActions.setUser({
-                email: user.email ?? undefined,
-                extAuthId: user.uid,
+                ...userProfile
             }))
 
-
+            console.log(userProfile)
         }
     }, [user])
 

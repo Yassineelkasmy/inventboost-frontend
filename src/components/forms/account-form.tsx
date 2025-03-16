@@ -5,12 +5,14 @@ import { useForm } from "react-hook-form"
 import { cn } from "../../lib/utils"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
-import { useAppSelector } from "../../store"
-import { userSelectors } from "../../user/userSlice"
 import { useAuth } from "../../hooks/useAuth"
 import { useEffect } from "react"
-import { signOut } from "firebase/auth"
+import { signInWithEmailAndPassword, signOut } from "firebase/auth"
 import { auth } from "../../firebase"
+import { useMutation } from "@tanstack/react-query"
+import { userApi } from "../../api/userApi"
+import { useDispatch } from "react-redux"
+import { toast } from "sonner"
 
 export function AccountForm({
     className,
@@ -19,6 +21,8 @@ export function AccountForm({
 
 
     const { user } = useAuth()
+
+    const dispatch = useDispatch()
 
     const formSchema = z.object({
         email: z.string().email(),
@@ -38,9 +42,22 @@ export function AccountForm({
         form.setValue('email', user?.email ?? "")
     }, [user?.email])
 
+    const mutation = useMutation({
+        mutationFn: userApi.signup,
+        onSuccess: (resp) => {
+            const email = form.getValues('email')
+            const password = form.getValues('password')
+            signInWithEmailAndPassword(auth, email, password).then((creds) => {
+                toast.success('Account created ')
+            })
+        }
+    })
+
     const onSubmit = (values: z.infer<typeof formSchema>) => {
-        alert(values)
-        console.log(values)
+        mutation.mutate({
+            ...values,
+            uid: user?.uid
+        })
     }
 
 
@@ -104,7 +121,7 @@ export function AccountForm({
                         )}
                     />
 
-                    {user === undefined && <FormField
+                    {!Boolean(user) && <FormField
                         control={form.control}
                         name="password"
                         render={({ field }) => (
