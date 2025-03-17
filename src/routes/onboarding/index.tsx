@@ -24,7 +24,7 @@ export const Route = createFileRoute('/onboarding/')({
 })
 
 function RouteComponent() {
-    const { data: userProfile } = useUserProfile()
+    const { data: userProfile, isLoading } = useUserProfile()
     const { user } = useAuth()
     const router = useRouter()
 
@@ -39,8 +39,10 @@ function RouteComponent() {
 
 
     const onLogoutClick = useCallback(() => {
-        signOut(auth)
+        signOut(auth).then(() => router.navigate({ to: '/login' }))
     }, [])
+
+    if (isLoading) return null
 
 
     return (

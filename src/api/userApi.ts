@@ -40,18 +40,17 @@ export const userApi = {
 }
 
 export const useUserProfile = () => {
-    return useQuery<User | undefined>({
+    return useQuery<User | null>({
         queryKey: ['user'], queryFn: async () => {
             try {
-
                 const response = await userApi.getCurrentUser()
                 return response.data
             } catch (e) {
-                if (e instanceof AxiosError && e.status == 403) {
-                    throw e
-                }
+                return null
             }
         },
+        retry: 3,
+        retryOnMount: false,
     })
 }
 

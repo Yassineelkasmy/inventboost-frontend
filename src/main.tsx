@@ -7,6 +7,7 @@ import { ThemeProvider } from './components/ui/theme-provider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from './components/ui/sonner'
 import StoreProvider from './store-provider'
+import { useAuth } from './hooks/useAuth'
 
 
 declare module '@tanstack/react-router' {
@@ -14,6 +15,13 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
+
+function AuthenticatedRouterProvider() {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  return <RouterProvider router={router} context={{ isSignedIn: Boolean(user) }} />
+}
+
 
 
 const router = createRouter({ routeTree, context: { isSignedIn: false } })
@@ -28,7 +36,7 @@ if (!rootElement.innerHTML) {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <QueryClientProvider client={queryClient}>
           <StoreProvider>
-            <RouterProvider router={router} />
+            <AuthenticatedRouterProvider />
             <Toaster />
           </StoreProvider>
         </QueryClientProvider>
