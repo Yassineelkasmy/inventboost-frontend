@@ -58,9 +58,9 @@ export function BenefitsDetailsForm({
             <form className="flex flex-col gap-6" onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="flex flex-col gap-2 text-center">
 
-                    <h1 className="text-xl font-bold">Please Upload the Image of Your Benefit Card</h1>
+                    <h1 className="text-xl font-bold">Verifying Your Benefits Details…</h1>
                     <div className="text-sm text-muted-foreground">
-                        By securely integrating your benefits information, Addy can provide personalized recommendations and enhance your healthcare experience.
+                        By securely integrating your insurance information, Addy can provide personalized recommendations and enhance your healthcare experience.
                     </div>
 
 

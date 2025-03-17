@@ -10,6 +10,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { useAuth } from '../../hooks/useAuth'
 import { z } from 'zod'
+import { UploadDocumentForm } from '../../components/forms/uplpad-document-form'
 
 const onboardingParams = z.object({
     onboardingEmail: z.string().email().optional(),
@@ -59,7 +60,7 @@ function RouteComponent() {
             <div className="flex flex-col gap-4 p-4 sm:p-6 md:p-10 w-full max-w-3xl mx-auto">
                 {currentOnBoardingStep === 1 && <AccountForm onboardingEmail={onboardingEmail} />}
                 {currentOnBoardingStep === 2 && <BenefitsDetailsForm />}
-                {currentOnBoardingStep === 3 && <AccountForm />}
+                {currentOnBoardingStep === 3 && <UploadDocumentForm />}
             </div>
         </div>
     )
