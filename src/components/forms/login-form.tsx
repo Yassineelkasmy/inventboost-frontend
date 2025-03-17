@@ -11,7 +11,7 @@ import { userApi } from "../../api/userApi"
 import { useMutation } from "@tanstack/react-query"
 import { useDispatch, useSelector } from "react-redux"
 import { useRouter } from "@tanstack/react-router"
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { auth } from "../../firebase"
 import { toast } from "sonner"
 
@@ -47,7 +47,7 @@ export function LoginForm({
         }
     }
 
-    const mutation = useMutation({
+    const checkEmailMutation = useMutation({
         mutationFn: userApi.checkEmailAlreadyExsists,
         onSuccess: async (resp) => {
             const emailAlreadyExisits = resp.data
@@ -59,15 +59,18 @@ export function LoginForm({
                 })
             } else {
                 const email = form.getValues("email")
-                router.navigate({ to: '/onboarding' })
+                router.navigate({
+                    to: '/onboarding', search: {
+                        'onboardingEmail': email,
+                    }
+                })
 
             }
         }
     })
 
     const onSubmit = (values: z.infer<typeof formSchema>) => {
-        mutation.mutate(values.email)
-
+        checkEmailMutation.mutate(values.email)
     }
 
     return (

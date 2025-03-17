@@ -4,6 +4,7 @@ import { auth } from '../firebase';
 import { useDispatch } from "react-redux";
 import { userActions } from "../user/userSlice";
 import { useUserProfile } from "../api/userApi";
+import { queryClient } from "../main";
 
 export const useAuth = () => {
     const [user, setUser] = useState<User | null>(null)
@@ -27,6 +28,10 @@ export const useAuth = () => {
             if (user) {
                 const token = await getIdToken(user)
                 localStorage.setItem('jwt_token', token)
+                queryClient.refetchQueries({ queryKey: ['user'] })
+            } else {
+                localStorage.removeItem('jwt_token')
+                queryClient.refetchQueries({ queryKey: ['user'] })
             }
             setUser(user)
             setLoading(false)

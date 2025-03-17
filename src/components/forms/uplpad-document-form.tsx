@@ -11,9 +11,8 @@ import { useProviders, userApi } from "../../api/userApi"
 import { useDispatch } from "react-redux"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { toast } from "sonner"
-import { queryClient } from "../../main"
 
-export function BenefitsDetailsForm({
+export function UploadDocumentForm({
     className,
     ...props
 }: React.ComponentPropsWithoutRef<"div">) {
@@ -40,7 +39,6 @@ export function BenefitsDetailsForm({
         mutationFn: userApi.syncBenefits,
         onSuccess: () => {
             toast.success('Sycned Successfully')
-            queryClient.refetchQueries({ queryKey: ['user'] })
         }
     })
 

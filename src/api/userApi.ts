@@ -43,14 +43,15 @@ export const useUserProfile = () => {
     return useQuery<User | undefined>({
         queryKey: ['user'], queryFn: async () => {
             try {
+
                 const response = await userApi.getCurrentUser()
                 return response.data
             } catch (e) {
                 if (e instanceof AxiosError && e.status == 403) {
-                    return undefined
+                    throw e
                 }
             }
-        }
+        },
     })
 }
 
@@ -59,7 +60,7 @@ export const useProviders = () => {
         queryKey: ['providers'], queryFn: async () => {
             const response = await userApi.getProviders()
             return response.data
-        }
+        },
     })
 }
 

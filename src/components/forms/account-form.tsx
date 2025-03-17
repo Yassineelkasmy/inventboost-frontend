@@ -13,22 +13,31 @@ import { useMutation } from "@tanstack/react-query"
 import { userApi } from "../../api/userApi"
 import { useDispatch } from "react-redux"
 import { toast } from "sonner"
+import { useRouter } from "@tanstack/react-router"
+import { queryClient } from "../../main"
+
+
+type AccountFormProps = {
+    onboardingEmail?: string
+}
+
 
 export function AccountForm({
-    className,
-    ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+    onboardingEmail
+}: AccountFormProps) {
 
 
     const { user } = useAuth()
 
     const dispatch = useDispatch()
 
+    const router = useRouter()
+
     const formSchema = z.object({
         email: z.string().email(),
         firstName: z.string().min(3),
         lastName: z.string().min(3),
-        password: z.string().min(8),
+        password: Boolean(user) ? z.string() : z.string().min(8),
         phoneNumber: z.string().min(10),
         accessCode: z.string().min(5),
     })
@@ -36,24 +45,38 @@ export function AccountForm({
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            email: onboardingEmail,
+        }
     })
 
     useEffect(() => {
-        form.setValue('email', user?.email ?? "")
+        form.setValue('email', user?.email ?? (onboardingEmail ?? ""))
+        if (user) {
+            form.setValue('password', "00000000")
+        }
     }, [user?.email])
 
     const mutation = useMutation({
         mutationFn: userApi.signup,
         onSuccess: (resp) => {
-            const email = form.getValues('email')
-            const password = form.getValues('password')
-            signInWithEmailAndPassword(auth, email, password).then((creds) => {
+            if (!user) {
+                const email = form.getValues('email')
+                const password = form.getValues('password')
+                signInWithEmailAndPassword(auth, email, password).then((creds) => {
+                    toast.success('Account created ')
+                })
+            } else {
                 toast.success('Account created ')
-            })
+
+            }
+            queryClient.refetchQueries({ queryKey: ['user'] })
+
         }
     })
 
     const onSubmit = (values: z.infer<typeof formSchema>) => {
+        console.log(values)
         mutation.mutate({
             ...values,
             uid: user?.uid
@@ -61,7 +84,7 @@ export function AccountForm({
     }
 
 
-    return <div className={cn("flex flex-col gap-6", className)} {...props}>
+    return <div className={cn("flex flex-col gap-6")}>
         <Form {...form}>
 
             <form className="flex flex-col gap-6" onSubmit={form.handleSubmit(onSubmit)}>
@@ -169,7 +192,10 @@ export function AccountForm({
                     <div className="flex flex-row gap-2">
                         <Button variant={'secondary'} className="flex-1" onClick={async (e) => {
                             e.preventDefault()
-                            signOut(auth)
+                            if (user) {
+                                await signOut(auth)
+                            }
+                            router.navigate({ to: '/login' })
 
                         }}>
                             Cancell
