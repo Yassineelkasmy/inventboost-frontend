@@ -64,13 +64,14 @@ export function AccountForm({
                 const email = form.getValues('email')
                 const password = form.getValues('password')
                 signInWithEmailAndPassword(auth, email, password).then((creds) => {
+                    queryClient.refetchQueries({ queryKey: ['user'] })
                     toast.success('Account created ')
                 })
             } else {
+                queryClient.refetchQueries({ queryKey: ['user'] })
                 toast.success('Account created ')
 
             }
-            queryClient.refetchQueries({ queryKey: ['user'] })
 
         }
     })

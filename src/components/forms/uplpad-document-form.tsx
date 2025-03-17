@@ -1,9 +1,25 @@
 import { Button } from "../ui/button"
 import { cn } from "../../lib/utils"
-import { useAuth } from "../../hooks/useAuth"
-import { useDispatch } from "react-redux"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { Check, Upload } from "lucide-react"
+import { toast } from "sonner"
+import { useMutation } from "@tanstack/react-query"
+import { userApi } from "../../api/userApi"
+import { queryClient } from "../../main"
+
+export enum DocumentFileType {
+    PDF = 'application/pdf',
+    XML = 'application/xml',
+    JPG = 'image/jpeg',
+    PNG = 'image/png',
+}
+
+const allowedFileTypes: string[] = [
+    DocumentFileType.PDF,
+    DocumentFileType.XML,
+    DocumentFileType.JPG,
+    DocumentFileType.PNG,
+]
 
 export function UploadDocumentForm({
     className,
@@ -11,8 +27,20 @@ export function UploadDocumentForm({
 }: React.ComponentPropsWithoutRef<"div">) {
 
 
+    const uploadMutation = useMutation({
+        mutationFn: userApi.uploadBenefitCard,
+        onSuccess: () => {
+            queryClient.refetchQueries({ queryKey: ['user'] })
+            toast.success('Benfit Card uploaded successfully')
+        }
+    })
+
     const [isDragging, setIsDragging] = useState(false)
     const [file, setFile] = useState<File | null>(null)
+
+    const isAllowedFileType = (file: File) => {
+        return allowedFileTypes.includes(file.type)
+    }
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault()
@@ -28,15 +56,35 @@ export function UploadDocumentForm({
         setIsDragging(false)
 
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            setFile(e.dataTransfer.files[0])
+            const droppedFile = e.dataTransfer.files[0]
+            if (!isAllowedFileType(droppedFile)) {
+                toast.error("Invalid file type! Please select a file of type PDF, XML, JPG, or PNG.")
+                return
+            }
+            setFile(droppedFile)
         }
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            setFile(e.target.files[0])
+            const selectedFile = e.target.files[0]
+            if (!isAllowedFileType(selectedFile)) {
+                toast.error("Invalid file type! Please select a file of type PDF, XML, JPG, or PNG.")
+                return
+            }
+            setFile(selectedFile)
         }
     }
+
+    const onUpload = useCallback(() => {
+        if (file) {
+            if (!isAllowedFileType(file)) {
+                toast.error("Invalid file type! Please select a file of type PDF, XML, JPG, or PNG.")
+                return
+            }
+            uploadMutation.mutate(file)
+        }
+    }, [file])
 
     return <div className={cn("flex flex-col gap-6", className)} {...props}>
 
@@ -50,14 +98,14 @@ export function UploadDocumentForm({
         </div>
         <div className="flex flex-col gap-6">
 
-            <div className="w-full max-w-xl p-6 bg-[#121212] text-gray-200 rounded-lg">
+            <div className="w-full  p-6 bg-accent text-gray-200 rounded-lg">
                 <h2 className="text-xl font-semibold mb-4">Connection Options</h2>
 
                 <div className="mb-6">
                     <p className="mb-2">Upload Document</p>
                     <label
                         htmlFor="file-upload"
-                        className={`relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? "border-teal-400 bg-[#1a1a1a]" : "border-gray-600 hover:border-teal-400"
+                        className={`relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? "border-accent-foreground bg-[#1a1a1a]" : "border-gray-600 hover:border-accent-foreground"
                             }`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
@@ -66,9 +114,9 @@ export function UploadDocumentForm({
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             {file ? (
                                 <>
-                                    <Check className="w-10 h-10 mb-3 text-teal-400" />
+                                    <Check className="w-10 h-10 mb-3 " />
                                     <p className="mb-2 text-sm text-center">
-                                        <span className="font-semibold text-teal-400">{file.name}</span>
+                                        <span className="font-semibold ">{file.name}</span>
                                     </p>
                                     <p className="text-xs text-gray-400">{(file.size / 1024).toFixed(2)} KB</p>
                                 </>
@@ -76,7 +124,7 @@ export function UploadDocumentForm({
                                 <>
                                     <Upload className="w-10 h-10 mb-3 text-gray-400" />
                                     <p className="mb-2 text-sm text-center">
-                                        <span className="font-semibold text-teal-400">Click to Upload</span> or drag and drop
+                                        <span className="font-semibold ">Click to Upload</span> or drag and drop
                                     </p>
                                     <p className="text-xs text-gray-400 text-center">
                                         Images & Graphics Types: PDF or XML
@@ -93,11 +141,11 @@ export function UploadDocumentForm({
                 <div className="text-sm text-gray-400">
                     By clicking "Sync Now," I agree that I consent to securely share my medical records with Acme in accordance with
                     our{" "}
-                    <a href="#" className="text-teal-400 hover:underline">
+                    <a href="#" className=" hover:underline">
                         Terms of Use
                     </a>
                     , and{" "}
-                    <a href="#" className="text-teal-400 hover:underline">
+                    <a href="#" className=" hover:underline">
                         Privacy Policy
                     </a>
                     .
@@ -106,9 +154,9 @@ export function UploadDocumentForm({
 
             <div className="flex flex-row gap-2">
                 <Button variant={'secondary'} className="flex-1">
-                    Skip for now
+                    Skip for Now
                 </Button>
-                <Button type="submit" className="flex-1">
+                <Button onClick={onUpload} className="flex-1">
                     Sync Now
                 </Button>
             </div>

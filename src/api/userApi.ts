@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { Provider, User } from "../user/user.types"
 import axiosInstance, { ApiResponse } from "./axiosInstance"
-import { AxiosError } from "axios"
 
 export const userApi = {
     checkEmailAlreadyExsists: async (email: string): Promise<ApiResponse<boolean>> => {
@@ -35,6 +34,17 @@ export const userApi = {
         }
     ): Promise<void> => {
         await axiosInstance.post('/users/sync', payload).then(response => response.data)
+    },
+    uploadBenefitCard: async (file: File) => {
+        const formData = new FormData()
+        formData.append('file', file, file.name)
+        return await axiosInstance.post('/users/upload-benefit-card', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+
+            }
+        }).then(response => response.data);
+
     }
 
 }

@@ -11,6 +11,7 @@ import { auth } from '../../firebase'
 import { useAuth } from '../../hooks/useAuth'
 import { z } from 'zod'
 import { UploadDocumentForm } from '../../components/forms/uplpad-document-form'
+import { VerificationForm } from '../../components/forms/verification-form'
 
 const onboardingParams = z.object({
     onboardingEmail: z.string().email().optional(),
@@ -34,7 +35,8 @@ function RouteComponent() {
         if (!userProfile || !userProfile.firstName || !userProfile.lastName) return 1
         if (!userProfile.providerId) return 2
         if (!userProfile.benefitCard) return 3
-        return 4
+        if (userProfile.benefitCard) return 4
+        return 1
     }, [userProfile])
 
 
@@ -63,6 +65,7 @@ function RouteComponent() {
                 {currentOnBoardingStep === 1 && <AccountForm onboardingEmail={onboardingEmail} />}
                 {currentOnBoardingStep === 2 && <BenefitsDetailsForm />}
                 {currentOnBoardingStep === 3 && <UploadDocumentForm />}
+                {currentOnBoardingStep === 4 && <VerificationForm />}
             </div>
         </div>
     )
