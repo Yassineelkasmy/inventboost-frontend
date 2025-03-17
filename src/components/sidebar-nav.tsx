@@ -5,7 +5,9 @@ import { Home, Calendar, FileText, Users, Settings, LogOut, Menu } from "lucide-
 import { Button } from "./ui/button"
 import { cn } from "../lib/utils"
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
-
+import { signOut } from "firebase/auth"
+import { auth } from "../firebase"
+import { useRouter } from "@tanstack/react-router"
 
 interface NavItem {
     title: string
@@ -17,6 +19,8 @@ export function SidebarNav() {
     const pathname = '/dashboard'
     const [isMobile, setIsMobile] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
+
+    const router = useRouter()
 
     useEffect(() => {
         const checkIfMobile = () => {
@@ -92,6 +96,11 @@ export function SidebarNav() {
             <Button
                 variant="ghost"
                 className="mt-auto w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800/50"
+                onClick={() => {
+                    signOut(auth).then(() => {
+                        router.navigate({ to: '/login' })
+                    })
+                }}
             >
                 <LogOut className="mr-2 h-5 w-5" />
                 Logout
