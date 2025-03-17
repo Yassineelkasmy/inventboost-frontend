@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Mic, Volume2 } from "lucide-react"
 import { Slider } from "../ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Link } from "@tanstack/react-router"
 
 export function VerificationForm({
     className,
@@ -77,7 +78,7 @@ export function VerificationForm({
             <div className="flex flex-row gap-2">
 
                 <Button className="flex-1">
-                    Proceed to Dashboard
+                    <Link to="/dashboard">Proceed to Dashboard</Link>
                 </Button>
             </div>
         </div>
